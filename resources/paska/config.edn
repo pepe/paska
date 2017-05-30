@@ -1,0 +1,27 @@
+{:duct.core/project-ns  paska
+ :duct.core/environment :production
+
+ :duct.module/logging {}
+ :duct.module.web/api {}
+ :duct.module/sql {}
+
+ :duct.module/ataraxy
+ {"/things"
+  {[:post {thing :body-params}] [:thing/create thing]
+   [:get]                       [:thing/list]
+   [:get "/search/" q]          [:thing/search q]
+   [:get "/" id]                [:thing/fetch ^int id]
+   [:delete "/" id]             [:thing/delete ^int id]}}
+
+ :paska.handler.thing/create {:db #ig/ref :duct.database/sql}
+ :paska.handler.thing/list   {:db #ig/ref :duct.database/sql}
+ :paska.handler.thing/fetch  {:db #ig/ref :duct.database/sql}
+ :paska.handler.thing/search {:db #ig/ref :duct.database/sql}
+ :paska.handler.thing/delete {:db #ig/ref :duct.database/sql}
+
+ :duct.migrator/ragtime
+ {:migrations [#ig/ref :paska.migration/create-things]}
+
+ [:duct.migrator.ragtime/sql :paska.migration/create-things]
+ {:up   ["CREATE TABLE things (id INTEGER PRIMARY KEY, category_id INTEGER KEY, name TEXT, quantity INTEGER)"]
+  :down ["DROP TABLE things"]}}
